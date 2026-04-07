@@ -23,6 +23,21 @@ export default function PokemonModal({ pokemon, onClose }) {
 
   const radarOption = {
     backgroundColor: "transparent",
+    tooltip: {
+      trigger: "item",
+      formatter: (params) => {
+        const values = params.data.value;
+        return [
+          `<strong>${params.name}</strong>`,
+          `HP: ${values[0]}`,
+          `ATK: ${values[1]}`,
+          `DEF: ${values[2]}`,
+          `SP.ATK: ${values[3]}`,
+          `SP.DEF: ${values[4]}`,
+          `SPD: ${values[5]}`,
+        ].join("<br/>");
+      },
+    },
     radar: {
       shape: "polygon",
       indicator: [
