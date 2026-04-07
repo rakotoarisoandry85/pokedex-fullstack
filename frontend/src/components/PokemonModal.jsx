@@ -61,8 +61,9 @@ export default function PokemonModal({ pokemon, onClose }) {
         symbolSize: 5,
       }],
       animation: true,
-      animationDuration: 700,
+      animationDuration: 1000,
       animationEasing: "cubicOut",
+      //tooltip: {value:pokemon.name}
     }],
   };
 
