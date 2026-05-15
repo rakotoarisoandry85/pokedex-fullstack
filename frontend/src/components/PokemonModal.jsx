@@ -25,21 +25,53 @@ export default function PokemonModal({ pokemon, onClose }) {
     backgroundColor: "transparent",
     tooltip: {
       trigger: "item",
+      confine: true,
+      position: (pos, params, dom, rect, size) => {
+        const x = Math.min(pos[0] + 25, size.viewSize[0] - size.contentSize[0] - 10);
+        const y = Math.max(10, pos[1] - size.contentSize[1] / 2);
+        return [x, y];
+      },
+      backgroundColor: "rgba(15, 23, 42, 0.96)",
+      borderColor: color.bg,
+      borderWidth: 1,
+      textStyle: {
+        color: "#fff",
+        fontFamily: "'Nunito', sans-serif",
+      },
+      extraCssText: "border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.25);",
       formatter: (params) => {
-        const values = params.data.value;
-        return [
-          `<strong>${params.name}</strong>`,
-          `HP: ${values[0]}`,
-          `ATK: ${values[1]}`,
-          `DEF: ${values[2]}`,
-          `SP.ATK: ${values[3]}`,
-          `SP.DEF: ${values[4]}`,
-          `SPD: ${values[5]}`,
-        ].join("<br/>");
+        const value = params.data.value;
+        const labels = ["HP", "ATK", "DEF", "SP.ATK", "SP.DEF", "SPD"];
+        const colors = [
+          "#ef4444",
+          "#f59e0b",
+          "#22c55e",
+          "#3b82f6",
+          "#8b5cf6",
+          "#06b6d4",
+        ];
+
+        return `
+          <div style="min-width: 190px;">
+            <div style="font-weight: 700; margin-bottom: 8px; color: ${color.bg};">
+              ${params.name}
+            </div>
+            ${labels
+              .map(
+                (label, i) => `
+                  <div style="display:flex; align-items:center; gap:8px; margin:4px 0;">
+                    <span style="width:10px; height:10px; border-radius:999px; background:${colors[i]}; display:inline-block;"></span>
+                    <span>${label}: ${value[i]}</span>
+                  </div>
+                `
+              )
+              .join("")}
+          </div>
+        `;
       },
     },
     radar: {
-      shape: "polygon",
+      shape: "circle",
       indicator: [
         { name: "HP",      max: statMax.hp },
         { name: "ATK",     max: statMax.attack },
@@ -78,7 +110,6 @@ export default function PokemonModal({ pokemon, onClose }) {
       animation: true,
       animationDuration: 1000,
       animationEasing: "cubicOut",
-      //tooltip: {value:pokemon.name}
     }],
   };
 
