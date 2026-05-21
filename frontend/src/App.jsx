@@ -75,7 +75,7 @@ export default function App() {
           <div className="logo">
             <span className="logo-ball">⬤</span>
             <span className="logo-text">Pokédex</span>
-            <span className="logo-gen">Gen I</span>
+            <span className="logo-gen">Gen I/II</span>
           </div>
           <p className="header-sub">{total} Pokémons • Génération Kanto</p>
         </div>
