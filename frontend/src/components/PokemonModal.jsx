@@ -7,9 +7,14 @@ export default function PokemonModal({ pokemon, onClose }) {
   const color = getPrimaryColor(pokemon.types);
 
   useEffect(() => {
+    // Bloque le scroll du body quand le modal est ouvert
+    document.body.style.overflow = "hidden";
     const handleKey = (e) => { if (e.key === "Escape") onClose(); };
     window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", handleKey);
+    };
   }, [onClose]);
 
   const stats = [
@@ -23,69 +28,22 @@ export default function PokemonModal({ pokemon, onClose }) {
 
   const radarOption = {
     backgroundColor: "transparent",
-    tooltip: {
-      trigger: "item",
-      confine: true,
-      position: (pos, params, dom, rect, size) => {
-        const x = Math.min(pos[0] + 25, size.viewSize[0] - size.contentSize[0] - 10);
-        const y = Math.max(10, pos[1] - size.contentSize[1] / 2);
-        return [x, y];
-      },
-      backgroundColor: "rgba(15, 23, 42, 0.96)",
-      borderColor: color.bg,
-      borderWidth: 1,
-      textStyle: {
-        color: "#fff",
-        fontFamily: "'Nunito', sans-serif",
-      },
-      extraCssText: "border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.25);",
-      formatter: (params) => {
-        const value = params.data.value;
-        const labels = ["HP", "ATK", "DEF", "SP.ATK", "SP.DEF", "SPD"];
-        const colors = [
-          "#ef4444",
-          "#f59e0b",
-          "#22c55e",
-          "#3b82f6",
-          "#8b5cf6",
-          "#06b6d4",
-        ];
-
-        return `
-          <div style="min-width: 190px;">
-            <div style="font-weight: 700; margin-bottom: 8px; color: ${color.bg};">
-              ${params.name}
-            </div>
-            ${labels
-              .map(
-                (label, i) => `
-                  <div style="display:flex; align-items:center; gap:8px; margin:4px 0;">
-                    <span style="width:10px; height:10px; border-radius:999px; background:${colors[i]}; display:inline-block;"></span>
-                    <span>${label}: ${value[i]}</span>
-                  </div>
-                `
-              )
-              .join("")}
-          </div>
-        `;
-      },
-    },
     radar: {
-      shape: "circle",
+      shape: "polygon",
       indicator: [
-        { name: "HP",      max: statMax.hp },
-        { name: "ATK",     max: statMax.attack },
-        { name: "DEF",     max: statMax.defense },
-        { name: "SP.ATK",  max: statMax.attack_special },
-        { name: "SP.DEF",  max: statMax.defense_special },
-        { name: "SPD",     max: statMax.speed },
+        { name: "HP",     max: statMax.hp },
+        { name: "ATK",    max: statMax.attack },
+        { name: "DEF",    max: statMax.defense },
+        { name: "SP.ATK", max: statMax.attack_special },
+        { name: "SP.DEF", max: statMax.defense_special },
+        { name: "SPD",    max: statMax.speed },
       ],
       center: ["50%", "50%"],
-      radius: "65%",
+      radius: "60%",
       splitNumber: 4,
       axisName: {
         color: "#aaa",
-        fontSize: 11,
+        fontSize: 10,
         fontFamily: "'Nunito', sans-serif",
         fontWeight: 700,
       },
@@ -105,10 +63,10 @@ export default function PokemonModal({ pokemon, onClose }) {
         lineStyle:  { color: color.bg, width: 2, shadowColor: color.glow, shadowBlur: 12 },
         itemStyle:  { color: color.bg, borderColor: "#fff", borderWidth: 1.5 },
         symbol: "circle",
-        symbolSize: 5,
+        symbolSize: 4,
       }],
       animation: true,
-      animationDuration: 1000,
+      animationDuration: 700,
       animationEasing: "cubicOut",
     }],
   };
@@ -120,24 +78,28 @@ export default function PokemonModal({ pokemon, onClose }) {
         style={{ "--modal-accent": color.bg, "--modal-glow": color.glow }}
         onClick={(e) => e.stopPropagation()}
       >
-        <button className="modal-close" onClick={onClose}>✕</button>
+        {/* ── Bande colorée en haut + image flottante ── */}
+        <div className="modal-hero" style={{ background: color.bg }}>
+          <div className="modal-hero-scanlines" />
+          <button className="modal-close" onClick={onClose}>✕</button>
+          <img
+            className="modal-hero-img"
+            src={imgError
+              ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png`
+              : pokemon.sprite_url}
+            alt={pokemon.name}
+            onError={() => setImgError(true)}
+          />
+        </div>
 
-        {/* ── Header : image + infos ── */}
-        <div className="modal-header">
-          <div className="modal-img-wrap">
-            <div className="modal-img-bg" style={{ background: color.bg }} />
-            <img
-              src={imgError
-                ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png`
-                : pokemon.sprite_url}
-              alt={pokemon.name}
-              onError={() => setImgError(true)}
-            />
-          </div>
-          <div className="modal-info">
-            <p className="modal-id">#{String(pokemon.id).padStart(3, "0")}</p>
+        {/* ── Contenu scrollable ── */}
+        <div className="modal-scroll">
+
+          {/* Identité */}
+          <div className="modal-identity">
+            <span className="modal-id">#{String(pokemon.id).padStart(3, "0")}</span>
             <h2 className="modal-name">{pokemon.name}</h2>
-            <div className="card-types">
+            <div className="modal-types">
               {pokemon.types.map((t) => (
                 <span
                   key={t}
@@ -154,42 +116,46 @@ export default function PokemonModal({ pokemon, onClose }) {
               </p>
             )}
           </div>
-        </div>
 
-        {/* ── Corps : radar + barres côte à côte ── */}
-        <div className="modal-body">
-
-          {/* Radar ECharts */}
-          <div className="modal-radar">
-            <ReactECharts
-              option={radarOption}
-              style={{ width: "100%", height: "220px" }}
-              opts={{ renderer: "svg" }}
-            />
+          {/* Radar */}
+          <div className="modal-section">
+            <h4 className="modal-section-title">
+              Radar
+              <span className="total-badge">Total {pokemon.total}</span>
+            </h4>
+            <div className="modal-radar">
+              <ReactECharts
+                option={radarOption}
+                style={{ width: "100%", height: "220px" }}
+                opts={{ renderer: "svg" }}
+              />
+            </div>
           </div>
 
           {/* Barres de stats */}
-          <div className="modal-stats">
-            <h4>Stats <span className="total-badge">Total {pokemon.total}</span></h4>
-            {stats.map(({ key, val }) => (
-              <div className="stat-row" key={key}>
-                <span className="stat-label">{statLabel[key]}</span>
-                <div className="stat-bar-track">
-                  <div
-                    className="stat-bar-fill"
-                    style={{
-                      width: `${Math.min(100, (val / statMax[key]) * 100)}%`,
-                      background: color.bg,
-                      boxShadow: `0 0 8px ${color.glow}`,
-                    }}
-                  />
+          <div className="modal-section">
+            <h4 className="modal-section-title">Statistiques</h4>
+            <div className="modal-stats-list">
+              {stats.map(({ key, val }) => (
+                <div className="stat-row" key={key}>
+                  <span className="stat-label">{statLabel[key]}</span>
+                  <div className="stat-bar-track">
+                    <div
+                      className="stat-bar-fill"
+                      style={{
+                        width: `${Math.min(100, (val / statMax[key]) * 100)}%`,
+                        background: color.bg,
+                        boxShadow: `0 0 8px ${color.glow}`,
+                      }}
+                    />
+                  </div>
+                  <span className="stat-val">{val}</span>
                 </div>
-                <span className="stat-val">{val}</span>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
 
-        </div>
+        </div>{/* fin modal-scroll */}
       </div>
     </div>
   );

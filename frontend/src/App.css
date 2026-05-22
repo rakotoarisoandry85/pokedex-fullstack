@@ -253,38 +253,226 @@ body {
   .modal-img-wrap img { width: 110px; height: 110px; }
   .search-row { flex-direction: column; }
 }
+/* ═══════════════════════════════════════════════════════════════
+   MODAL — mobile-first
+   À coller dans App.css en remplacement de la section modal
+   ═══════════════════════════════════════════════════════════════ */
 
-/* ─── Modal body (radar + barres) ────────────────────────────────────────── */
-.modal-body {
-  display: grid;
-  grid-template-columns: 250px 1fr;
-  align-items: start;
-  gap: 0;
-  border-top: 1px solid var(--border);
+/* ── Overlay ──────────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;        /* ← bottom-sheet sur mobile */
+  justify-content: center;
+  padding: 0;
+  animation: fadeIn .2s ease;
 }
 
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* ── Modal container ──────────────────────────────────────────── */
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px 24px 0 0;  /* ← arrondi en haut seulement */
+  width: 100%;
+  max-height: 92dvh;             /* laisse visible l'overlay */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.5),
+              0 0 40px var(--modal-glow, rgba(255,255,255,.05));
+  animation: slideUp .28s cubic-bezier(.32,1,.5,1);
+}
+
+@keyframes slideUp {
+  from { transform: translateY(60px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* ── Hero band (couleur type) ─────────────────────────────────── */
+.modal-hero {
+  position: relative;
+  height: 140px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  opacity: 0.92;
+}
+
+.modal-hero-scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 2px,
+    rgba(0,0,0,.12) 2px, rgba(0,0,0,.12) 4px
+  );
+  pointer-events: none;
+}
+
+.modal-hero-img {
+  position: absolute;
+  bottom: -30px;               /* déborde sur le contenu */
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  z-index: 2;
+  filter: drop-shadow(0 6px 16px rgba(0,0,0,.5));
+}
+
+/* ── Bouton fermer ────────────────────────────────────────────── */
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  z-index: 10;
+  background: rgba(0,0,0,.35);
+  border: 1px solid rgba(255,255,255,.15);
+  color: #fff;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background .15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-close:hover { background: var(--red); border-color: var(--red); }
+
+/* ── Zone scrollable ──────────────────────────────────────────── */
+.modal-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 48px 20px 32px;     /* 48px pour laisser place à l'image débordante */
+}
+
+/* drag indicator */
+.modal-scroll::before {
+  content: '';
+  display: block;
+  width: 40px;
+  height: 4px;
+  background: rgba(255,255,255,.15);
+  border-radius: 2px;
+  margin: -32px auto 24px;
+}
+
+/* ── Identité ─────────────────────────────────────────────────── */
+.modal-identity {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.modal-id {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.modal-name {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.modal-types {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.modal-evo {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* ── Sections (radar, stats) ──────────────────────────────────── */
+.modal-section {
+  margin-bottom: 24px;
+}
+
+.modal-section-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.total-badge {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* ── Radar ────────────────────────────────────────────────────── */
 .modal-radar {
-  padding: 16px 0 16px 16px;
-  border-right: 1px solid var(--border);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
 }
 
-.modal-stats {
-  padding: 20px 24px 24px;
-}
+/* ── Barres de stats ──────────────────────────────────────────── */
+.modal-stats-list { display: flex; flex-direction: column; gap: 10px; }
 
-.modal-stats h4 {
-  font-size: 12px; text-transform: uppercase; letter-spacing: 1px;
-  color: var(--text-muted); margin-bottom: 14px;
-  display: flex; align-items: center; gap: 10px;
-}
+.stat-row   { display: flex; align-items: center; gap: 10px; }
+.stat-label { width: 58px; font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; flex-shrink: 0; }
+.stat-bar-track { flex: 1; height: 8px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
+.stat-bar-fill  { height: 100%; border-radius: 4px; transition: width .6s cubic-bezier(.4,0,.2,1); }
+.stat-val  { width: 30px; text-align: right; font-size: 13px; font-weight: 700; flex-shrink: 0; }
 
-@media (max-width: 600px) {
-  .modal-body {
-    grid-template-columns: 1fr;
+/* ═══════════════════════════════════════════════════════════════
+   ≥ 500px — centré comme une carte flottante (tablette / desktop)
+   ═══════════════════════════════════════════════════════════════ */
+@media (min-width: 500px) {
+  .modal-overlay {
+    align-items: center;        /* centrage vertical */
+    padding: 20px;
   }
-  .modal-radar {
-    padding: 16px;
-    border-right: none;
-    border-bottom: 1px solid var(--border);
+
+  .modal {
+    max-width: 480px;
+    max-height: 88dvh;
+    border-radius: 20px;        /* arrondi sur tous les coins */
+  }
+
+  .modal-hero {
+    height: 160px;
+  }
+
+  .modal-hero-img {
+    width: 140px;
+    height: 140px;
+    bottom: -36px;
+  }
+
+  .modal-scroll {
+    padding-top: 56px;
   }
 }
