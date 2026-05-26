@@ -24,3 +24,4 @@ class Pokemon:
     @property
     def sprite_url(self) -> str:
         return f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/{self.id}.png"
+    

@@ -84,9 +84,9 @@ export default function PokemonModal({ pokemon, onClose }) {
           <button className="modal-close" onClick={onClose}>✕</button>
           <img
             className="modal-hero-img"
-            src={imgError
-              ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png`
-              : pokemon.sprite_url}
+            src={
+              `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/${pokemon.id}.svg` 
+          }
             alt={pokemon.name}
             onError={() => setImgError(true)}
           />
